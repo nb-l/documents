@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
+  <title>input框</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+    }
+
+    #app {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    input {
+      width: 80%;
+      height: 50px;
+      font-size: 30px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <input maxlength="13" ref="input" type="text" v-model="telephone" @keydown="down($event)">
+  </div>
+</body>
+<script>
+  new Vue({
+    el: '#app',
+    data() {
+      return {
+        currentCur: 0,
+        telephone: '16638661933'
+      }
+    },
+    mounted() {
+      this.telephone = this.formatPhone(this.telephone)
+      this.$nextTick(() => {
+        this.$refs.input.focus()
+        this.currentCur = this.$refs.input.selectionStart
+      })
+    },
+    methods: {
+      down(e) {
+        this.currentCur = this.$refs.input.selectionStart
+        console.log(this.currentCur)
+        if (e.keyCode !== 8) {
+          return
+        }
+        if (this.currentCur == 4) {
+          e.preventDefault();
+          this.telephone = this.formatPhone(this.trim(this.replaceStr(this.telephone, 2, '')))
+          this.currentCur = this.currentCur - 3
+        } else if (this.currentCur == 9) {
+          e.preventDefault();
+          this.telephone = this.formatPhone(this.trim(this.replaceStr(this.telephone, 7, '')))
+          this.currentCur = this.currentCur - 3
+        } else if (this.currentCur == 5) {
+          e.preventDefault();
+          this.telephone = this.formatPhone(this.trim(this.replaceStr(this.telephone, 4, '')))
+          this.currentCur = this.currentCur - 3
+        } else if (this.currentCur == 10) {
+          e.preventDefault();
+          this.telephone = this.formatPhone(this.trim(this.replaceStr(this.telephone, 9, '')))
+          this.currentCur = this.currentCur - 3
+        } else {
+          e.preventDefault();
+          console.log(this.currentCur)
+          this.telephone = this.formatPhone(this.trim(this.replaceStr(this.telephone, this.currentCur - 1, '')))
+          this.currentCur = this.currentCur - 2
+        }
+        this.$nextTick(() => {
+          this.setCaretPosition(this.$refs.input, this.currentCur)
+        })
+      },
+      setCaretPosition(ctrl, pos) {
+        ctrl.focus();
+        ctrl.setSelectionRange(pos, pos);
+      },
+      formatPhone(mobile) {
+        var value = mobile.replace(/\D/g, '').substring(0, 11);
+        var valueLen = value.length;
+        if (valueLen > 3 && valueLen < 8) {
+          value = `${value.substr(0, 3)} ${value.substr(3)}`;
+        } else if (valueLen >= 8) {
+          value = `${value.substr(0, 3)} ${value.substr(3, 4)} ${value.substr(7)}`;
+        }
+        return value
+      },
+      trim(str) {
+        return str.replace(/\s*/g, '');
+      },
+      replaceStr(str, index, char) {
+        var strAry = str.split('');
+        strAry[index] = char;
+        return strAry.join('');
+      }
+    },
+    watch: {
+      telephone(newValue) {
+        if (this.currentCur == 3 || this.currentCur == 8) {
+          this.currentCur = this.currentCur + 1
+        }
+        this.telephone = this.formatPhone(newValue)
+        this.$nextTick(() => {
+          this.setCaretPosition(this.$refs.input, this.currentCur + 1)
+        })
+      }
+    }
+  })
+</script>
+
+</html>
